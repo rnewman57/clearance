@@ -31,7 +31,7 @@ class Clearance::SessionsController < ApplicationController
   def destroy
     sign_out
     flash_success_after_destroy
-    redirect_to(url_after_destroy)
+    redirect_back_or(url_after_destroy)
   end
 
   private

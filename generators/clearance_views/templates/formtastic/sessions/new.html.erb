@@ -5,6 +5,9 @@
     <%= form.input :email %>
     <%= form.input :password, :as => :password %>
   <% end %>
+  <% unless params[:return_to].blank? -%>
+     <%= hidden_field_tag :return_to, params[:return_to] %>
+  <% end -%>
   <% form.buttons do %>
     <%= form.commit_button "Sign in" %>
   <% end %>

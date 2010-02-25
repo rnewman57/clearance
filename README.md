@@ -105,7 +105,7 @@ file then add these locations in your paths.rb manually:
 Optional Formtastic views
 -------------------------
 
-We use & recommend [Formtastic](http://github.com/justinfrench/formtastic].
+We use & recommend [Formtastic](http://github.com/justinfrench/formtastic).
 
 Clearance has another generator to generate Formastic views:
 

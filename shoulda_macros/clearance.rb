@@ -206,6 +206,20 @@ module Clearance
       end
     end
 
+    def should_contain_hidden_return_to_field(&block)
+      should "include hidden return_to field in login form" do
+        return_url = instance_eval(&block)
+        assert_select "input[type=hidden][name=return_to]", 1
+        assert_select "input[type=hidden][name=return_to][value=?]", return_url, 1
+      end
+    end
+    
+    def should_not_contain_hidden_return_to_field(&block)
+      should " NOT include hidden return_to field in login form" do
+        assert_select "input[type=hidden][name=return_to]", false
+      end
+    end
+
     def should_display_a_sign_in_form
       warn "[DEPRECATION] should_display_a_sign_in_form: not meant to be public, no longer used internally"
       should 'display a "sign in" form' do

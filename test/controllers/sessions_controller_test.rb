@@ -13,6 +13,20 @@ class SessionsControllerTest < ActionController::TestCase
     should_render_template :new
     should_not_set_the_flash
     should_display_a_sign_in_form
+    should_not_contain_hidden_return_to_field
+  end
+
+  context "on GET to /sessions/new with a request return url" do
+    setup do
+      @return_url = "/url_in_the_request"
+      get :new, :return_to => @return_url
+    end
+    
+    should_respond_with    :success
+    should_render_template :new
+    should_not_set_the_flash
+    should_display_a_sign_in_form
+    should_contain_hidden_return_to_field {@return_url}
   end
 
   context "on POST to #create with unconfirmed credentials" do
@@ -129,6 +143,37 @@ class SessionsControllerTest < ActionController::TestCase
 
     should_set_the_flash_to(/signed out/i)
     should_redirect_to_url_after_destroy
+
+    should "delete the cookie token" do
+      assert_nil cookies['remember_token']
+    end
+
+    should "reset the remember token" do
+      assert_not_equal "old-token", @user.reload.remember_token
+    end
+  end
+
+  context "on DELETE to #destroy given a signed out user with a request return url" do
+    setup do
+      sign_out
+      @return_url = '/url_in_the_request'
+      delete :destroy, :return_to => @return_url
+    end
+    should_set_the_flash_to(/signed out/i)
+    should_redirect_to("the return URL") { @return_url }
+  end
+
+  context "on DELETE to #destroy with a cookie and a request return url" do
+    setup do
+      @user = Factory(:email_confirmed_user)
+      @user.update_attribute(:remember_token, "old-token")
+      @request.cookies["remember_token"] = "old-token"
+      @return_url = '/url_in_the_request'
+      delete :destroy, :return_to => @return_url
+    end
+
+    should_set_the_flash_to(/signed out/i)
+    should_redirect_to("the return URL") { @return_url }
 
     should "delete the cookie token" do
       assert_nil cookies['remember_token']
