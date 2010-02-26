@@ -1,13 +1,10 @@
 <h2>Sign in</h2>
 
-<% semantic_form_for :session, :url => session_path do |form| %>
+<% semantic_form_for :session, :url => session_path(:return_to => params[:return_to]) do |form| %>
   <% form.inputs do %>
     <%= form.input :email %>
     <%= form.input :password, :as => :password %>
   <% end %>
-  <% unless params[:return_to].blank? -%>
-     <%= hidden_field_tag :return_to, params[:return_to] %>
-  <% end -%>
   <% form.buttons do %>
     <%= form.commit_button "Sign in" %>
   <% end %>

@@ -6,14 +6,13 @@ class SessionsControllerTest < ActionController::TestCase
 
   should_filter_params :password
 
-  context "on GET to /sessions/new" do
+  context "on GET to /sessions/new without a request return url" do
     setup { get :new }
 
     should_respond_with    :success
     should_render_template :new
     should_not_set_the_flash
-    should_display_a_sign_in_form
-    should_not_contain_hidden_return_to_field
+    should_display_a_sign_in_form {nil}  # no return_url
   end
 
   context "on GET to /sessions/new with a request return url" do
@@ -25,8 +24,7 @@ class SessionsControllerTest < ActionController::TestCase
     should_respond_with    :success
     should_render_template :new
     should_not_set_the_flash
-    should_display_a_sign_in_form
-    should_contain_hidden_return_to_field {@return_url}
+    should_display_a_sign_in_form {@return_url}
   end
 
   context "on POST to #create with unconfirmed credentials" do

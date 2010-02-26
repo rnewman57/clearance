@@ -206,24 +206,13 @@ module Clearance
       end
     end
 
-    def should_contain_hidden_return_to_field(&block)
-      should "include hidden return_to field in login form" do
-        return_url = instance_eval(&block)
-        assert_select "input[type=hidden][name=return_to]", 1
-        assert_select "input[type=hidden][name=return_to][value=?]", return_url, 1
-      end
-    end
-    
-    def should_not_contain_hidden_return_to_field(&block)
-      should " NOT include hidden return_to field in login form" do
-        assert_select "input[type=hidden][name=return_to]", false
-      end
-    end
-
-    def should_display_a_sign_in_form
+    def should_display_a_sign_in_form(&block)   # block produces either a return_to value or nil
       warn "[DEPRECATION] should_display_a_sign_in_form: not meant to be public, no longer used internally"
       should 'display a "sign in" form' do
-        assert_select "form[action=#{session_path}][method=post]",
+        return_to = instance_eval(&block)
+        submit_url = session_path
+        submit_url << "?return_to=" << ERB::Util::url_encode(return_to) if return_to
+        assert_select "form[action=?][method=post]", submit_url,
           true, "There must be a form to sign in" do
             assert_select "input[type=text][name=?]",
               "session[email]", true, "There must be an email field"
