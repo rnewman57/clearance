@@ -62,10 +62,10 @@ module Clearance
       #   sign_in(@user)
       def sign_in(user)
         if user
-          cookies[:remember_token] = {
-            :value   => user.remember_token,
-            :expires => 1.year.from_now.utc
-          }
+          expires_at = remember_token_expires_at
+          cookie = {:value  => user.remember_token}
+          cookie[:expires] = expires_at.utc if expires_at
+          cookies[:remember_token] = cookie
           self.current_user = user
         end
       end
@@ -125,6 +125,11 @@ module Clearance
       def redirect_to_root
         redirect_to('/')
       end
+      
+      def remember_token_expires_at
+        return 1.year.from_now
+      end
+      
     end
 
   end

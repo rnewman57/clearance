@@ -55,14 +55,45 @@ class SessionsControllerTest < ActionController::TestCase
 
     should_set_the_flash_to /signed in/i
     should_redirect_to_url_after_create
-
-    should 'set the cookie' do
-      assert ! cookies['remember_token'].empty?
-    end
+    should_set_cookie("remember_token", "old-token", 1.year.from_now)
 
     should "not change the remember token" do
       assert_equal "old-token", @user.reload.remember_token
     end
+  end
+
+  context "on POST to #create with good credentials, and remember_token expiration overridden" do
+    setup do
+      @user = Factory(:email_confirmed_user)
+      @user.update_attribute(:remember_token, "old-token-2")
+      class << @controller
+        def remember_token_expires_at
+          5.days.from_now
+        end
+      end
+      post :create, :session => {
+                      :email    => @user.email,
+                      :password => @user.password }
+    end
+
+    should_set_cookie("remember_token", "old-token-2", 5.days.from_now)
+  end
+
+  context "on POST to #create with good credentials, and remember_token in session cookie" do
+    setup do
+      @user = Factory(:email_confirmed_user)
+      @user.update_attribute(:remember_token, "old-token-3")
+      class << @controller
+        def remember_token_expires_at
+          nil  # should prevent any expiration date from being set in cookie
+        end
+      end
+      post :create, :session => {
+                      :email    => @user.email,
+                      :password => @user.password }
+    end
+
+    should_set_cookie("remember_token", "old-token-3", nil)
   end
 
   context "on POST to #create with good credentials and a session return url" do
